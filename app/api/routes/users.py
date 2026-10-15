@@ -1,54 +1,60 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, status
 
-from app.db.session import get_db
-from app.models.user import User
+from app.services.user_service import UserService
 from app.schemas.user import UserCreate, UserOut
-from app.core.config import settings
-
-from passlib.context import CryptContext
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
-
-
 @router.post("/", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-def create_user(user: UserCreate, db: Session = Depends(get_db)):
+def create_user(user: UserCreate):
     """Create a new user."""
-    existing = db.query(User).filter(User.email == user.email).first()
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered",
-        )
-
-    db_user = User(email=user.email, hashed_password=hash_password(user.password))
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    service = UserService()
+    return service.create(user)
 
 
 @router.get("/", response_model=List[UserOut])
-def list_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def list_users(skip: int = 0, limit: int = 100):
     """List users."""
-    return db.query(User).offset(skip).limit(limit).all()
+    service = UserService()
+    return service.list(skip=skip, limit=limit)
 
 
 @router.get("/{user_id}", response_model=UserOut)
-def get_user(user_id: int, db: Session = Depends(get_db)):
+def get_user(user_id: int):
     """Get a user by ID."""
-    user = db.query(User).filter(User.id == user_id).first()
+    service = UserService()
+    user = service.get(user_id=user_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
     return user
+
+
+@router.put("/{user_id}", response_model=UserOut)
+def update_user(user_id: int, user: UserCreate):
+    """Update a user."""
+    service = UserService()
+    updated = service.update(user_id=user_id, user_data=user)
+    if not updated:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    return updated
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(user_id: int):
+    """Delete a user."""
+    service = UserService()
+    deleted = service.delete(user_id=user_id)
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    return None
