@@ -12,3 +12,4 @@ venv/
 *.log
 alembic/versions/
 .DS_Store
+.claude
