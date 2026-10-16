@@ -17,6 +17,7 @@ class UserCreate(UserBase):
 class UserOut(UserBase):
     id: int
     created_at: datetime
+    role_id: int | None = None
 
     class Config:
         from_attributes = True

@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.core.config import settings
 from app.api.routes.users import router as users_router
 from app.api.routes.openai import router as openai_router
+from app.api.routes.roles import router as roles_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -11,6 +12,7 @@ app = FastAPI(
 # Include routers
 app.include_router(users_router)
 app.include_router(openai_router)
+app.include_router(roles_router)
 
 
 @app.get("/")
