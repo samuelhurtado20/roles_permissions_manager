@@ -3,6 +3,7 @@ from app.core.config import settings
 from app.api.routes.users import router as users_router
 from app.api.routes.openai import router as openai_router
 from app.api.routes.roles import router as roles_router
+from app.api.routes.permissions import router as permissions_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -13,6 +14,7 @@ app = FastAPI(
 app.include_router(users_router)
 app.include_router(openai_router)
 app.include_router(roles_router)
+app.include_router(permissions_router)
 
 
 @app.get("/")
