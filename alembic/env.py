@@ -4,6 +4,8 @@ from alembic import context
 from app.db.session import Base
 from app.core.config import settings
 from app.models.user import User  # noqa: F401
+from app.models.role import Role  # noqa: F401
+from app.models.permission import Permission  # noqa: F401
 
 config = context.config
 
