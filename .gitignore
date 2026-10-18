@@ -10,7 +10,6 @@ venv/
 .idea/
 .vscode/
 *.log
-alembic/versions/
 .DS_Store
 .claude/
 settings.local.json
