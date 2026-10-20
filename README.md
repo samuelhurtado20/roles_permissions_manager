@@ -150,3 +150,6 @@ pytest
 ## License
 
 MIT
+
+
+#$env:PYTHONPATH="."; .\.venv\Scripts\alembic.exe upgrade head`
