@@ -107,6 +107,22 @@ The API will be available at `http://localhost:8000` with interactive documentat
 ### OpenAI
 - `POST /openai/generate` - Send a prompt to OpenAI and get a response
 
+### Roles
+- `POST /roles/` - Create a new role
+- `GET /users/` - List roles (with pagination)
+- `GET /roles/{role_id}` - Get a specific role
+- `GET /roles/name/{role_name}` - Get a role by name
+- `PUT /roles/{role_id}` - Update a role
+- `DELETE /roles/{role_id}` - Delete a role
+
+### Permissions
+- `POST /permissions/` - Create a new permission
+- `GET /permissions/` - List permissions (with pagination)
+- `GET /permissions/{permission_id}` - Get a specific permission
+- `GET /permissions/name/{permission_name}` - Get a permission by name
+- `PUT /permissions/{permission_id}` - Update a permission
+- `DELETE /permissions/{permission_id}` - Delete a permission
+
 ## Environment Variables
 
 | Variable | Description | Default |
@@ -150,6 +166,4 @@ pytest
 ## License
 
 MIT
-
-
 #$env:PYTHONPATH="."; .\.venv\Scripts\alembic.exe upgrade head`
