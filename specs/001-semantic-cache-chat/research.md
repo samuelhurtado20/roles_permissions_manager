@@ -19,7 +19,7 @@
 
 **Alternatives Considered**:
 - Batch processing: Would increase complexity and latency
-- Distributed locking: Would require Redis or similar; overkill for initial version
+- In-memory application-level locking: Overkill for initial version; first-request-wins pattern avoids need
 - Random winner selection: Could lead to duplicate work
 
 ## 3. Token Limit Handling & Truncation (FR-014)
@@ -57,14 +57,15 @@
 
 ## 6. Rate Limiting Implementation (FR-017)
 
-**Decision**: Configurable per-user rate limiting (default: 10 queries/5min) using sliding window algorithm with Redis backend
+**Decision**: Configurable per-user rate limiting (default: 10 queries/5min) using sliding window algorithm with in-memory store (Python dictionary with timestamps)
 
-**Rationale**: Prevents abuse and ensures fair resource allocation. Redis provides efficient sliding window implementation.
+**Rationale**: Prevents abuse and ensures fair resource allocation. In-memory store is sufficient for single-process deployments and avoids external Redis dependency.
 
 **Alternatives Considered**:
 - Token bucket: Would require more complex implementation for smooth throttling
 - Fixed window: Could cause uneven distribution across boundaries
 - IP-based limiting: Would be less precise than per-user
+- Redis-backed: Would add Redis as external dependency; acceptable for distributed deployments but overkill for v1
 
 ## Technology Stack Best Practices
 
@@ -101,7 +102,7 @@
 
 ## Performance Optimizations
 
-1. **Caching**: Layered caching (application + Redis for hot data)
+1. **Caching**: Layered caching (application + in-memory for hot data)
 2. **Indexing**: Database indexes for common query patterns
 3. **Async Operations**: Non-blocking I/O for external API calls
 4. **Connection Pooling**: Optimize database connections

@@ -68,7 +68,7 @@ description: "Task list template for feature implementation"
 
 - [ ] T011 [P] Create ChatRecord model in app/models/chat.py (id, user_id FK, question, embedding vector(1536), answer, similarity_score, source_type, created_at)
 - [ ] T012 [P] Create Alembic migration for chat_records table with pgvector embedding column
-- [ ] T013 [US1] Implement ChatService in app/services/chat.py with methods: generate_embedding(), compute_similarity(), check_cache(), store_record()
+- [ ] T013 [US1] Implement ChatService in app/services/chat.py with methods: generate_embedding(), compute_similarity(), check_cache(), store_record(), handle_concurrency() (first-request-wins pattern)
 - [ ] T014 [US1] Create Pydantic schemas in app/schemas/chat.py (ChatRequest, ChatResponse, ChatHistoryResponse) with similarity_score as float≥0 and source_type as enum
 - [ ] T015 [US1] Implement POST /api/chat endpoint in app/api/routes/chat.py with cache hit logic and 500ms response target
 - [ ] T016 [US1] Add rate limiting decorator to POST /api/chat endpoint (default 10 queries/user/5min)
@@ -180,11 +180,11 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 7
 
-- [ ] T047 [P] [US7] Implement rate limiting decorator in app/utils/rate_limit.py using Redis or in-memory store
-- [ ] T048 [US7] Protect POST /api/chat with rate limiting (10 queries/5min default)
+- [ ] T047 [P] [US7] Implement rate limiting decorator in app/utils/rate_limit.py using in-memory store (dictionary-based sliding window)
+- [ ] T048 [US7] Protect POST /api/chat with rate limiting (10 queries/5min default, in-memory store)
 - [ ] T049 [US7] Configure rate_limit_requests and rate_limit_window in config.py
 - [ ] T050 [US7] Return HTTP 429 with Retry-After header when limit exceeded
-- [ ] T051 [US7] Add admin-configurable rate limit override mechanism
+- [ ] T051 [US7] Add config-based rate limit override mechanism (rate_limit_requests and rate_limit_window environment variables)
 
 **Checkpoint**: User Story 7 is fully functional - rate limiting enforced with proper 429 responses
 
