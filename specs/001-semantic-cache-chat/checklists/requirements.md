@@ -36,4 +36,8 @@
   - FR-013 (concurrency): First request wins; subsequent concurrent requests get cached result — Option A
   - FR-014 (token limits): Truncates to 8191 tokens with warning in metadata — Option from Assumptions
   - FR-015 (cache invalidation): Admin-only explicit invalidation action — Option A
+- FR-016 added: Structured JSON logs + operational metrics (cache hit rate, latency, error rates, active users).
+- FR-017 added: Configurable strict rate limiting (default 10 queries/user/5min).
+- SC-009 added: Observability signals required and queryable.
+- SC-010 added: Rate limiting enforced (HTTP 429 on exceeded limit).
 - All checklist items now pass; spec is ready for `/speckit-plan`.
