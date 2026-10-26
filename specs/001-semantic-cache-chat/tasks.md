@@ -94,6 +94,8 @@ description: "Task list template for feature implementation"
 - [ ] T023 [US2] Add health check endpoint for OpenAI API status in app/api/routes/chat.py
 - [ ] T024 [US2] Implement graceful error handling for OpenAI API failures (HTTP 503)
 - [ ] T025 [US2] Add response metadata: source_type "openai_api" for new answers
+- [ ] T026 [US2] Implement embedding API failure handling (FR-012): return HTTP 503 with user-friendly message and Retry-After header
+- [ ] T027 [US2] Implement token limit handling (FR-014): truncate questions exceeding 8191 tokens with warning metadata
 
 **Checkpoint**: User Story 2 is fully functional - novel questions route to OpenAI and store for caching
 
@@ -107,12 +109,12 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Add role field to User model (ADMIN, STANDARD, GUEST, AUDITOR)
-- [ ] T027 [US3] Implement role-based authorization decorator in app/utils/auth.py
-- [ ] T028 [US3] Protect POST /api/chat with role check (allow ADMIN, STANDARD; reject GUEST, AUDITOR)
-- [ ] T029 [US3] Protect DELETE /api/chat/{id} with admin-only check (allow ADMIN; reject others)
-- [ ] T030 [US3] Implement GET /api/chat/history with read-only access for all authenticated roles
-- [ ] T031 [US3] Add 403 error responses for unauthorized role attempts
+- [ ] T028 [P] [US3] Add role field to User model (ADMIN, STANDARD, GUEST, AUDITOR)
+- [ ] T029 [US3] Implement role-based authorization decorator in app/utils/auth.py
+- [ ] T030 [US3] Protect POST /api/chat with role check (allow ADMIN, STANDARD; reject GUEST, AUDITOR)
+- [ ] T031 [US3] Protect DELETE /api/chat/{id} with admin-only check (allow ADMIN; reject others)
+- [ ] T032 [US3] Implement GET /api/chat/history with read-only access for all authenticated roles
+- [ ] T033 [US3] Add 403 error responses for unauthorized role attempts
 
 **Checkpoint**: User Story 3 is fully functional - role-based access enforced on all endpoints
 
@@ -126,10 +128,10 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 4
 
-- [ ] T032 [P] [US4] Verify all similarity queries are scoped to user_id in ChatService
-- [ ] T033 [P] [US4] Add database index on (user_id, embedding) for efficient per-user similarity search
-- [ ] T034 [US4] Update query_history endpoint to filter by authenticated user's user_id
-- [ ] T035 [US4] Add test case verifying cross-user data isolation
+- [ ] T034 [P] [US4] Verify all similarity queries are scoped to user_id in ChatService
+- [ ] T035 [P] [US4] Add database index on (user_id, embedding) for efficient per-user similarity search
+- [ ] T036 [US4] Update query_history endpoint to filter by authenticated user's user_id
+- [ ] T037 [US4] Add test case verifying cross-user data isolation
 
 **Checkpoint**: User Story 4 is fully functional - complete user data isolation verified
 
@@ -143,11 +145,11 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 5
 
-- [ ] T036 [P] [US5] Create DELETE /api/chat/{record_id} endpoint in app/api/routes/chat.py
-- [ ] T037 [US5] Implement soft-delete or flag invalidation in ChatService
-- [ ] T038 [US5] Add admin-only authorization check on DELETE endpoint
-- [ ] T039 [US5] Update similarity search to exclude invalidated records
-- [ ] T040 [US5] Add 404 response for non-existent record_id
+- [ ] T038 [P] [US5] Create DELETE /api/chat/{record_id} endpoint in app/api/routes/chat.py
+- [ ] T039 [US5] Implement soft-delete or flag invalidation in ChatService
+- [ ] T040 [US5] Add admin-only authorization check on DELETE endpoint
+- [ ] T041 [US5] Update similarity search to exclude invalidated records
+- [ ] T042 [US5] Add 404 response for non-existent record_id
 
 **Checkpoint**: User Story 5 is fully functional - admin can invalidate cached records
 
@@ -161,12 +163,12 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 6
 
-- [ ] T041 [P] [US6] Create logging utility in app/utils/logger.py with structured JSON output
-- [ ] T042 [P] [US6] Add metric collection middleware in app/utils/metrics.py
-- [ ] T043 [US6] Track cache_hit_rate, embedding_error_rate, openai_error_rate, active_user_count
-- [ ] T044 [US6] Track latency_p50 and latency_p95 for cache hits and misses
-- [ ] T045 [US6] Add /metrics endpoint for metric discovery
-- [ ] T046 [US6] Configure log format to include correlation_id for request tracing
+- [ ] T043 [P] [US6] Create logging utility in app/utils/logger.py with structured JSON output
+- [ ] T044 [P] [US6] Add metric collection middleware in app/utils/metrics.py
+- [ ] T045 [US6] Track cache_hit_rate, embedding_error_rate, openai_error_rate, active_user_count
+- [ ] T046 [US6] Track latency_p50 and latency_p95 for cache hits and misses
+- [ ] T047 [US6] Add /metrics endpoint for metric discovery
+- [ ] T048 [US6] Configure log format to include correlation_id for request tracing
 
 **Checkpoint**: User Story 6 is fully functional - observability signals present and queryable
 
@@ -180,11 +182,11 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 7
 
-- [ ] T047 [P] [US7] Implement rate limiting decorator in app/utils/rate_limit.py using in-memory store (dictionary-based sliding window)
-- [ ] T048 [US7] Protect POST /api/chat with rate limiting (10 queries/5min default, in-memory store)
-- [ ] T049 [US7] Configure rate_limit_requests and rate_limit_window in config.py
-- [ ] T050 [US7] Return HTTP 429 with Retry-After header when limit exceeded
-- [ ] T051 [US7] Add config-based rate limit override mechanism (rate_limit_requests and rate_limit_window environment variables)
+- [ ] T049 [P] [US7] Implement rate limiting decorator in app/utils/rate_limit.py using in-memory store (dictionary-based sliding window)
+- [ ] T050 [US7] Protect POST /api/chat with rate limiting (10 queries/5min default, in-memory store)
+- [ ] T051 [US7] Configure rate_limit_requests and rate_limit_window in config.py
+- [ ] T052 [US7] Return HTTP 429 with Retry-After header when limit exceeded
+- [ ] T053 [US7] Add config-based rate limit override mechanism (rate_limit_requests and rate_limit_window environment variables)
 
 **Checkpoint**: User Story 7 is fully functional - rate limiting enforced with proper 429 responses
 
@@ -194,12 +196,12 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Validation and polish - ensure everything works and is documented
 
-- [ ] T052 [P] Create contract tests in tests/contract/test_chat_api.py for all endpoints
-- [ ] T053 [P] Create unit tests for ChatService in tests/unit/test_chat_service.py
-- [ ] T054 [P] Create integration tests in tests/integration/test_chat_full.py
-- [ ] T055 Update quickstart.md with working validation commands
-- [ ] T056 Run all tests and verify 100% pass rate
-- [ ] T057 Run quickstart.md validation scenarios end-to-end
+- [ ] T054 [P] Create contract tests in tests/contract/test_chat_api.py for all endpoints
+- [ ] T055 [P] Create unit tests for ChatService in tests/unit/test_chat_service.py
+- [ ] T056 [P] Create integration tests in tests/integration/test_chat_full.py
+- [ ] T057 Update quickstart.md with working validation commands
+- [ ] T058 Run all tests and verify 100% pass rate
+- [ ] T059 Run quickstart.md validation scenarios end-to-end
 
 **Checkpoint**: Complete test suite and documentation verified
 
@@ -211,7 +213,7 @@ description: "Task list template for feature implementation"
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3-7)**: All depend on Foundational phase completion
+- **User Stories (Phase 3-9)**: All depend on Foundational phase completion
 - **Test Suite (Phase 10)**: Depends on all implementation phases
 
 ### User Story Dependencies
