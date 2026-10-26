@@ -202,6 +202,8 @@ description: "Task list template for feature implementation"
 - [ ] T057 Update quickstart.md with working validation commands
 - [ ] T058 Run all tests and verify 100% pass rate
 - [ ] T059 Run quickstart.md validation scenarios end-to-end
+- [ ] T060 [P] Implement performance benchmark tests to validate semantic cache hit response latency (< 100ms) vs. OpenAI fallback latency in Phase 10.
+- [ ] T061 [P] Implement fallback and health check tests for cache service availability (SC-008) to ensure graceful degrading when vector store or Redis is unreachable.
 
 **Checkpoint**: Complete test suite and documentation verified
 
