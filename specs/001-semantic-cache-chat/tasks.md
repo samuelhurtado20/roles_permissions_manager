@@ -73,7 +73,6 @@ description: "Task list template for feature implementation"
 - [ ] T015 [US1] Implement POST /api/chat endpoint in app/api/routes/chat.py with cache hit logic and 500ms response target
 - [ ] T016 [US1] Add rate limiting decorator to POST /api/chat endpoint (default 10 queries/user/5min)
 - [ ] T017 [US1] Implement role-based access: reject Guest/Auditor with 403 on POST /api/chat
-- [ ] T018 [US1] Add structured JSON logging with correlation IDs for all chat operations
 - [ ] T019 [US1] Configure cosine similarity search index on embedding column using ivfflat
 
 **Checkpoint**: User Story 1 is fully functional and testable - cache hits return within 500ms
@@ -202,8 +201,13 @@ description: "Task list template for feature implementation"
 - [ ] T057 Update quickstart.md with working validation commands
 - [ ] T058 Run all tests and verify 100% pass rate
 - [ ] T059 Run quickstart.md validation scenarios end-to-end
-- [ ] T060 [P] Implement performance benchmark tests to validate semantic cache hit response latency (< 100ms) vs. OpenAI fallback latency in Phase 10.
-- [ ] T061 [P] Implement fallback and health check tests for cache service availability (SC-008) to ensure graceful degrading when vector store or Redis is unreachable.
+- [ ] T060 [P] Implement performance benchmark tests to validate semantic cache hit response latency (< 500ms p95) vs. OpenAI fallback latency (< 5s p95) in Phase 10.
+- [ ] T061 [P] Implement fallback and health check tests for cache service availability (SC-008) to ensure graceful degrading when vector store or OpenAI API is unreachable.
+- [ ] T062 [P] Implement circuit breaker pattern in OpenAI client for graceful degradation during service outages (SC-008)
+- [ ] T063 [P] Expand health check endpoint to verify database connectivity and OpenAI API availability with dependency status (SC-008)
+- [ ] T064 [P] Add load test for cache hit p95 latency (< 500ms) under concurrent load (SC-001)
+- [ ] T065 [P] Add load test for cache miss p95 latency (< 5s) under concurrent load (SC-002)
+- [ ] T066 [P] Add cache hit rate validation test (≥ 30% for active users with ≥ 10 prior questions) (SC-003)
 
 **Checkpoint**: Complete test suite and documentation verified
 

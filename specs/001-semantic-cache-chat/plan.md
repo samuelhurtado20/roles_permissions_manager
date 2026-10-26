@@ -79,15 +79,21 @@ app/
 ├── core/
 │   └── config.py             # Settings via pydantic-settings
 ├── db/
-│   ├── session.py            # SQLAlchemy session/Metadata/Bases
-│   └── models/
-│       └── chat.py           # ChatRecord model with pgvector
+│   └── session.py            # SQLAlchemy session/Metadata/Bases
+├── models/
+│   ├── __init__.py
+│   ├── user.py               # User model (existing auth system)
+│   └── chat.py               # ChatRecord model with pgvector
 ├── schemas/
 │   └── chat.py               # Pydantic schemas for request/response validation
 ├── services/
-│   └── chat.py               # ChatService (embedding, similarity, cache logic, OpenAI calls)
+│   ├── chat.py               # ChatService (embedding, similarity, cache logic, OpenAI calls)
+│   └── openai_client.py      # OpenAI client wrapper (circuit breaker, retry logic)
 ├── utils/
-│   └── rate_limit.py         # Rate limiting decorator
+│   ├── rate_limit.py         # Rate limiting decorator (in-memory sliding window)
+│   ├── logger.py             # Structured JSON logging utility
+│   ├── metrics.py            # Metric collection middleware
+│   └── errors.py             # Error handling middleware
 ├── main.py                   # FastAPI app factory, router registration
 
 alembic/
@@ -100,7 +106,7 @@ tests/
 ├── unit/
 │   └── test_chat_service.py  # Service unit tests
 └── integration/
-    └── test_chat_full.py   # End-to-end tests
+    └── test_chat_full.py     # End-to-end tests
 
 .env.example                   # Configuration template
 Dockerfile
@@ -108,7 +114,7 @@ docker-compose.yml
 requirements.txt
 ```
 
-**Structure Decision**: Single-service FastAPI application following constitution pattern with clean separation between routes (API layer), services (business logic), models (database), and schemas (validation).
+**Structure Decision**: Single-service FastAPI application following constitution pattern with clean separation between routes (API layer), services (business logic), models (database), and schemas (validation). Models live directly under `app/models/` per constitution's model-driven principle.
 
 ## Complexity Tracking
 
