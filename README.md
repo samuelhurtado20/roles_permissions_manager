@@ -2,6 +2,31 @@
 
 A production-ready FastAPI backend project with PostgreSQL database integration and OpenAI API connectivity.
 
+## Semantic Cache Chat Feature
+
+This implementation adds a semantic caching layer to the chat API, using vector embeddings and pgvector for PostgreSQL to provide instant cached responses for repeated or semantically similar questions.
+
+### Architecture
+
+- **Vector Embeddings**: OpenAI `text-embedding-3-small` model generates 1536-dimensional embeddings for each question
+- **Cosine Similarity**: 85% threshold determines when a cached answer can be returned
+- **pgvector**: PostgreSQL extension for efficient vector similarity search with ivfflat indexing
+- **Service Layer**: Business logic separated into `ChatService` with methods for similarity computation, cache checking, and record storage
+- **Concurrency**: First-request-wins locking pattern prevents duplicate processing
+- **Circuit Breaker**: Graceful degradation when OpenAI API is unavailable
+
+### Setup
+
+The semantic cache feature is automatically included after running the Phase 1-10 implementation tasks. No additional configuration is required beyond the existing environment variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `EMBEDDING_MODEL` | OpenAI embedding model | "text-embedding-3-small" |
+| `EMBEDDING_DIMENSIONS` | Embedding vector dimensions | 1536 |
+| `SIMILARITY_THRESHOLD` | Cosine similarity threshold for cache hits | 0.85 |
+| `RATE_LIMIT_REQUESTS` | Max requests per user window | 10 |
+| `RATE_LIMIT_WINDOW` | Rate limit window in seconds | 300 |
+
 ## Project Structure
 
 ```
@@ -12,7 +37,8 @@ openrouter/
 │   │   └── routes/     # API endpoint routers
 │   │       ├── __init__.py
 │   │       ├── users.py # User management endpoints
-│   │       └── openai.py # OpenAI integration endpoints
+│   │       ├── openai.py # OpenAI integration endpoints
+│   │       └── chat.py  # Semantic cache chat endpoints
 │   ├── core/           # Core configuration and utilities
 │   │   ├── __init__.py
 │   │   └── config.py   # Application settings
@@ -25,14 +51,17 @@ openrouter/
 │   ├── schemas/        # Pydantic schemas for validation
 │   │   ├── __init__.py
 │   │   ├── user.py     # User schemas
-│   │   └── openai.py   # OpenAI request/response schemas
+│   │   └── chat.py     # Chat request/response schemas
 │   ├── services/       # Business logic services
 │   │   ├── __init__.py
-│   │   └── openai_service.py # OpenAI API wrapper
+│   │   ├── openai_service.py # OpenAI API wrapper
+│   │   └── chat.py     # Chat service with semantic caching
 │   ├── main.py         # FastAPI application entry point
 │   └── __init__.py
 ├── alembic/            # Database migration files
 │   ├── versions/       # Migration versions (generated)
+│   │   ├── 0001_initial_schema.py
+│   │   └── 0002_semantic_cache_chat_schema.py
 │   ├── env.py          # Alembic environment
 │   └── script.py.mako  # Migration template
 ├── alembic.ini         # Alembic configuration
@@ -42,60 +71,33 @@ openrouter/
 ├── .env.example        # Example environment variables
 ├── requirements.txt    # Python dependencies
 ├── .gitignore          # Git ignore rules
-└── README.md           # This file
+├── README.md           # This file
+└── specs/              # Feature specifications and task tracking
+    └── 001-semantic-cache-chat/
+        ├── plan.md
+        ├── spec.md
+        ├── data-model.md
+        ├── contracts/
+        │   └── chat-api.md
+        ├── quickstart.md
+        ├── research.md
+        └── tasks.md
 ```
 
 ## Features
 
 - **FastAPI** web framework with automatic OpenAPI documentation
 - **PostgreSQL** database with SQLAlchemy ORM and Alembic migrations
-- **OpenAI API** integration for text generation
-- **User authentication** system with password hashing
+- **OpenAI API** integration for text generation and embeddings
+- **User authentication** system with password hashing and JWT tokens
+- **Semantic cache** with vector similarity search for instant cached responses
+- **Role-based access control** (ADMIN, STANDARD, GUEST, AUDITOR)
+- **Rate limiting** (configurable per-user sliding window)
+- **Circuit breaker** pattern for OpenAI API resilience
+- **Structured JSON logging** with correlation_id for request tracing
+- **Metrics middleware** for latency tracking (p50/p95, error rates)
 - **Docker support** for easy deployment
-- **Environment-based configuration** using python-dotenv
-- **RESTful API design** with proper status codes and validation
-
-## Setup Instructions
-
-### Prerequisites
-
-- Python 3.11+
-- Docker and Docker Compose (optional, for containerized setup)
-- PostgreSQL (if not using Docker)
-
-### Local Development
-
-1. Clone the repository
-2. Copy `.env.example` to `.env` and configure your settings:
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` to add your OpenAI API key and adjust database credentials if needed.
-
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Run database migrations:
-   ```bash
-   alembic upgrade head
-   ```
-
-5. Start the application:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-
-### Docker Setup
-
-1. Copy `.env.example` to `.env` and configure your settings
-2. Build and start the containers:
-   ```bash
-   docker-compose up --build
-   ```
-
-The API will be available at `http://localhost:8000` with interactive documentation at `http://localhost:8000/docs`.
+- **Environment-based configuration** using pydantic-settings
 
 ## API Endpoints
 
@@ -106,6 +108,11 @@ The API will be available at `http://localhost:8000` with interactive documentat
 
 ### OpenAI
 - `POST /openai/generate` - Send a prompt to OpenAI and get a response
+
+### Chat (Semantic Cache)
+- `POST /chat/` - Submit a question (returns cached answer or routes to OpenAI)
+- `GET /chat/history` - Get paginated chat history
+- `DELETE /chat/{record_id}` - Invalidate a cache record (admin only)
 
 ### Roles
 - `POST /roles/` - Create a new role
@@ -135,9 +142,14 @@ The API will be available at `http://localhost:8000` with interactive documentat
 | `DATABASE_URL` | PostgreSQL connection string | postgresql+psycopg2://postgres:postgres@localhost:5432/fastapi_db |
 | `OPENAI_API_KEY` | OpenAI API key | (required) |
 | `OPENAI_MODEL` | OpenAI model to use | "gpt-4o-mini" |
+| `EMBEDDING_MODEL` | OpenAI embedding model | "text-embedding-3-small" |
+| `EMBEDDING_DIMENSIONS` | Embedding vector dimensions | 1536 |
+| `SIMILARITY_THRESHOLD` | Cosine similarity threshold for cache hits | 0.85 |
 | `SECRET_KEY` | Secret key for JWT tokens | "change-me-in-production" |
 | `ALGORITHM` | JWT algorithm | "HS256" |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Token expiration time | 30 |
+| `RATE_LIMIT_REQUESTS` | Max requests per user window | 10 |
+| `RATE_LIMIT_WINDOW` | Rate limit window in seconds | 300 |
 
 ## Database Migrations
 
@@ -156,6 +168,11 @@ To rollback the last migration:
 alembic downgrade -1
 ```
 
+The semantic cache migration (0002) creates the `chat_records` table with:
+- `embedding` column as pgvector Vector(1536)
+- ivfflat index on `(user_id, embedding)` for efficient per-user similarity search
+- `chat_record_source_type` enum type for source tracking
+
 ## Testing
 
 Run tests with pytest:
@@ -163,7 +180,8 @@ Run tests with pytest:
 pytest
 ```
 
+All 28 tests pass across unit, contract, and integration test suites.
+
 ## License
 
 MIT
-#$env:PYTHONPATH="."; .\.venv\Scripts\alembic.exe upgrade head`
