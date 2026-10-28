@@ -20,6 +20,16 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
+    # Semantic cache settings
+    SIMILARITY_THRESHOLD: float = 0.85
+    EMBEDDING_MODEL: str = "text-embedding-3-small"
+    EMBEDDING_DIMENSIONS: int = 1536
+    EMBEDDING_TOKEN_LIMIT: int = 8191
+
+    # Rate limiting settings
+    RATE_LIMIT_REQUESTS: int = 10
+    RATE_LIMIT_WINDOW: int = 300
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
